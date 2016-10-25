@@ -3,6 +3,7 @@ import regression from 'regression'
 import moment from 'moment'
 import * as downloads from '../downloads'
 import Plotly from '../plotly'
+import { peek } from '../util'
 
 function prettyTerms(numTerms) {
   switch (numTerms) {
@@ -11,9 +12,7 @@ function prettyTerms(numTerms) {
     case 4: return 'Cubic'
     case 5: return 'Quartic'
     case 6: return 'Quintic'
-    case 7: return 'x^6'
-    case 8: return 'x^7'
-    default: throw new Error('Unknown regression')
+    default: return `x^${numTerms - 1}`
   }
 }
 
@@ -65,14 +64,16 @@ export default class Compare extends React.Component {
         displaylogo: false,
       }
 
-      data.push(prepData(regression('linear', regressions[0]), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('linear', regressions[1]), regressions[1].package, regressions[1].start))
-      data.push(prepData(regression('polynomial', regressions[0], 2), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('polynomial', regressions[0], 3), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('polynomial', regressions[0], 4), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('polynomial', regressions[0], 5), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('polynomial', regressions[0], 6), regressions[0].package, regressions[0].start))
-      data.push(prepData(regression('polynomial', regressions[0], 7), regressions[0].package, regressions[0].start))
+      regressions.forEach((curr) => {
+        let power = 0
+        let currRegression = regression('polynomial', curr, power += 1)
+        let bestRegression = currRegression
+        while (Math.abs(peek(currRegression.equation)) > 0.1) {
+          bestRegression = currRegression
+          currRegression = regression('polynomial', curr, power += 1)
+        }
+        data.push(prepData(bestRegression, curr.package, curr.start))
+      })
 
       Plotly.newPlot('compare', data, layout, options)
 

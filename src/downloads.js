@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { peek } from './util'
 
 function statusOK(response) {
   if (!response.ok) {
@@ -61,7 +62,7 @@ function allByWeek(packageName) {
     weekly.start = getWeekStart(r.downloads[0].day)
     const currWeek = moment(weekly.start)
 
-    const numWeeks = weeksBetween(weekly.start, r.downloads[r.downloads.length - 1].day)
+    const numWeeks = weeksBetween(weekly.start, peek(r.downloads).day)
     for (let i = 0; i <= numWeeks; i += 1) {
       weekly.downloads[i] = { week: currWeek.format('YYYY-MM-DD'), downloads: 0 }
       currWeek.add(1, 'w')
