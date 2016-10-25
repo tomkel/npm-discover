@@ -29,6 +29,7 @@ module.exports = {
           { browsers: '> 1%, last 2 version, not IE < 11, not ie_mob < 11, Firefox ESR' },
         }], 'react'],
         plugins: ['transform-class-properties'],
+        cacheDirectory: true,
       },
     }],
   },
