@@ -1,3 +1,4 @@
+import 'babel-polyfill'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { HashRouter as Router, Match, Miss, Link } from 'react-router'
@@ -16,5 +17,5 @@ const App = () =>
 
 ReactDOM.render(
   <App />,
-  document.getElementById('app')
+  document.getElementById('app'),
 )

@@ -23,11 +23,17 @@ module.exports = {
   module: {
     loaders: [{
       test: /\.jsx?$/,
+      exclude: /node_modules/,
       loader: 'babel',
       query: {
-        presets: [['env', { targets:
-          { browsers: '> 1%, last 2 version, not IE < 11, not ie_mob < 11, Firefox ESR' },
-        }], 'react'],
+        presets: [
+          ['env', {
+            targets: {
+              browsers: '> 1%, last 2 version, not IE < 11, not ie_mob < 11, Firefox ESR',
+            },
+            useBuiltIns: true,
+          }],
+          'react'],
         plugins: ['transform-class-properties'],
         cacheDirectory: true,
       },
