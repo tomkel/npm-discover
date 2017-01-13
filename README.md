@@ -6,6 +6,6 @@ discover new, popular, or interesting npm packages"
 ## Design
 
 Pull down data from [download-counts](https://github.com/npm/download-counts)
-and store in either PostgreSQL or Spark.
+and store in ElasticSearch.
 
-Use Python or Spark to identify trends in data.
+Use Chi-Squared test to identify trends in data.
