@@ -12,6 +12,12 @@ function fetchGeneric(url) {
   return fetch(url)
     .then(statusOK)
     .then(r => r.json())
+    .then((json) => {
+      if (json.error) {
+        throw new Error(json.error)
+      }
+      return json
+    })
 }
 
 function range(from, to, packageName) {
@@ -24,10 +30,14 @@ function point(from, to, packageName) {
   return fetchGeneric(url)
 }
 
+function pad(n) {
+  return n < 10 ? `0${n}` : n
+}
+
 function lastYearByDay(packageName) {
   const today = new Date()
-  const startDate = `${today.getUTCFullYear() - 1}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`
-  const endDate = `${today.getUTCFullYear()}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`
+  const startDate = `${today.getUTCFullYear() - 1}-${pad(today.getUTCMonth() + 1)}-${pad(today.getUTCDate())}`
+  const endDate = `${today.getUTCFullYear()}-${pad(today.getUTCMonth() + 1)}-${pad(today.getUTCDate())}`
   return range(startDate, endDate, packageName)
 }
 
@@ -38,8 +48,8 @@ function lastMonthByDay(packageName) {
 
 function allByDay(packageName) {
   const today = new Date()
-  const startDate = `${today.getUTCFullYear() - 10}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`
-  const endDate = `${today.getUTCFullYear()}-${today.getUTCMonth() + 1}-${today.getUTCDate()}`
+  const startDate = `${today.getUTCFullYear() - 10}-${pad(today.getUTCMonth() + 1)}-${pad(today.getUTCDate())}`
+  const endDate = `${today.getUTCFullYear()}-${pad(today.getUTCMonth() + 1)}-${pad(today.getUTCDate())}`
   return range(startDate, endDate, packageName)
 }
 
