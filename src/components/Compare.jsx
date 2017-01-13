@@ -26,7 +26,7 @@ function prepData(data, packageName = '', firstDate) {
   const dateTracker = moment(firstDate)
   data.points.forEach((vals) => {
     dataObj.x.push(dateTracker.format('YYYY-MM-DD'))
-    dataObj.y.push(vals[1] > 0 ? vals[1] : 0)
+    dataObj.y.push(Math.max(vals[1], 0))
     dateTracker.add(1, 'w')
   })
   return dataObj
@@ -34,13 +34,23 @@ function prepData(data, packageName = '', firstDate) {
 
 export default class Compare extends React.Component {
 
-  componentDidMount() {
+  createFigure() {
     const { package1, package2 } = this.props.params
     Promise.all([downloads.allByWeek(package1), downloads.allByWeek(package2)])
     .then((results) => {
       const regressions = []
       const data = results.map((dlResult) => {
-        const dataObj = { type: 'scatter', name: dlResult.package, x: [], y: [] }
+        const dataObj = {
+          type: 'scatter',
+          /*line: {
+            shape: 'spline',
+            // smoothing => [0, 1.3]
+            smoothing: 1.0,
+          },*/
+          name: dlResult.package,
+          x: [],
+          y: [],
+        }
         const regressionArr = []
         regressionArr.package = dlResult.package
         regressionArr.start = dlResult.start
@@ -54,31 +64,43 @@ export default class Compare extends React.Component {
         return dataObj
       })
 
-      const layout = {
-        title: `${package1} vs ${package2}`,
-      }
-
-      const options = {
-        displayModeBar: false,
-        scrollZoom: true,
-        displaylogo: false,
-      }
-
       regressions.forEach((curr) => {
         let power = 0
         let currRegression = regression('polynomial', curr, power += 1)
         let bestRegression = currRegression
-        while (Math.abs(peek(currRegression.equation)) > 0.1) {
+        while (Math.abs(peek(currRegression.equation)) >= 0.1) {
           bestRegression = currRegression
           currRegression = regression('polynomial', curr, power += 1)
         }
         data.push(prepData(bestRegression, curr.package, curr.start))
       })
 
+      const layout = {
+        title: `${package1} vs ${package2}`,
+        yaxis: {
+          title: 'Weekly downloads',
+          rangemode: 'nonnegative',
+        },
+      }
+
+      const options = {
+        displayModeBar: false,
+        // scrollZoom: true,
+        displaylogo: false,
+      }
+
       Plotly.newPlot('compare', data, layout, options)
 
       console.timeEnd('start')
     })
+  }
+
+  componentDidMount() {
+    this.createFigure()
+  }
+
+  componentDidUpdate() {
+    this.createFigure()
   }
 
   render() {
